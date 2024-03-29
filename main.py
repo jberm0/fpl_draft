@@ -1,5 +1,3 @@
-import requests
-import json
 from dotenv import load_dotenv, find_dotenv
 import os
 from src.connection import *

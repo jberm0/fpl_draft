@@ -9,8 +9,6 @@ team_id=os.getenv("team_id")
 email=os.getenv("email")
 password=os.getenv("password")
 
-print(league_id + team_id + email + password)
-
 def api_calls_json():
         base_url = "https://draft.premierleague.com/api/"
         base_path = "/Users/jonah/Documents/projects/fpl_draft/landing/"
@@ -19,10 +17,6 @@ def api_calls_json():
             "league_transactions": {
                 "api_call": base_url + f"draft/league/{league_id}/transactions", 
                 "write_path": base_path + "league_transactions.json"
-            },
-            "my_transactions": {
-                "api_call": base_url + f"draft/entry/{team_id}/transactions", 
-                "write_path": base_path + "my_transactions.json"
             },
             "trades": {
                 "api_call": base_url + f"/draft/league/{league_id}/trades",
@@ -35,10 +29,6 @@ def api_calls_json():
             "bootstrap_static": {
                 "api_call": base_url + f"bootstrap-static",
                 "write_path": base_path + "bootstrap-static.json"
-            },
-            "league_details": {
-                "api_call": base_url + f"league/{league_id}/details",
-                "write_path": base_path + "league_details.json"
             },
             "game_week": {
                 "api_call": base_url + f"game",
@@ -79,16 +69,3 @@ def user_authentication(user_email, password, tables_selected: list):
 
     retrieve_json(session, tables_selected)
     print("successfully read tables")
-
-
-
-tables_to_pull = [
-    "league_transactions", 
-    "my_transactions", 
-    "trades", 
-    "details", 
-    "bootstrap_static", 
-    "league_details", 
-    "game_week"
-]
-user_authentication(email, password, tables_to_pull)
