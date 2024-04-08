@@ -1,6 +1,6 @@
 from dotenv import load_dotenv, find_dotenv
 import os
-from src.connection import *
+from src.connection import user_authentication
 
 load_dotenv(find_dotenv())
 league_id=os.getenv("league_id")
