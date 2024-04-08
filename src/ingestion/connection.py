@@ -1,6 +1,6 @@
 import requests
 import json
-from dotenv import load_dotenv, find_dotenv
+from dotenv.main import load_dotenv, find_dotenv
 import os
 
 load_dotenv(find_dotenv())
@@ -9,9 +9,7 @@ team_id=os.getenv("team_id")
 email=os.getenv("email")
 password=os.getenv("password")
 
-def api_calls_json():
-        base_url = "https://draft.premierleague.com/api/"
-        base_path = "/Users/jonah/Documents/projects/fpl_draft/landing/"
+def api_calls_json(base_url, base_path, league_id):
 
         tables_to_pull = {
             "league_transactions": {
@@ -37,9 +35,9 @@ def api_calls_json():
         }
         return tables_to_pull
 
-def retrieve_json(session, tables_selected):
+def retrieve_json(session, tables_selected, base_url, base_path, league_id):
         
-    tables_to_pull = api_calls_json()
+    tables_to_pull = api_calls_json(base_url, base_path, league_id)
     for table in tables_to_pull:
         if table in tables_selected:
             print(table)
@@ -51,7 +49,9 @@ def retrieve_json(session, tables_selected):
             with open(write_path, 'w') as outputfile:
                 json.dump(jsonResponse, outputfile)
 
-def user_authentication(user_email, password, tables_selected: list):
+def user_authentication(
+    user_email, password, tables_selected: list, base_url, base_path, league_id
+):
 
     session = requests.session()
 
@@ -67,5 +67,5 @@ def user_authentication(user_email, password, tables_selected: list):
     session.post(url, data = login_data)
     print("logged in successfully")
 
-    retrieve_json(session, tables_selected)
+    retrieve_json(session, tables_selected, base_url, base_path, league_id)
     print("successfully read tables")
