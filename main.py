@@ -3,10 +3,11 @@ from os import getenv
 
 from src.ingestion.connection import user_authentication
 from src.process.cleaning import (
-    process_transactions, 
-    process_trades, 
-    process_gameweek, 
-    process_details
+    process_transactions,
+    process_trades,
+    process_gameweek,
+    process_details,
+    process_bootsrap,
 )
 
 load_dotenv(find_dotenv())
@@ -29,8 +30,8 @@ tables_to_pull = [
 
 # connect and pull the tables
 user_authentication(
-    email, 
-    password, 
+    email,
+    password,
     tables_to_pull,
     base_url=base_api_path,
     base_path=landing_path,
@@ -38,8 +39,26 @@ user_authentication(
 )
 
 
-# processing and cleaning tables
+# processing and cleaning tables, retrieving key objects
 transactions = process_transactions(landing_path, "league_transactions.json")
 trades = process_trades(landing_path, "trades.json")
 gameweek = process_gameweek(landing_path, "game_week.json")
-league_name, league_entries, matches, standings = process_details(landing_path, "details.json")
+league_name, league_entries, matches, standings = process_details(
+    landing_path, "details.json"
+)
+(
+    elements,
+    stats,
+    positions,
+    gameweek_calendar,
+    gameweek_0,
+    gameweek_1,
+    gameweek_1_fixtures,
+    gameweek_2,
+    gameweek_2_fixtures,
+    gameweek_3,
+    gameweek_3_fixtures,
+    league_rules,
+    points_rules,
+    squad_rules,
+) = process_bootsrap(landing_path, "bootstrap.json")

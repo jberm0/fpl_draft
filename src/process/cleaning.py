@@ -176,3 +176,34 @@ def process_bootsrap(base_path, extension):
     gameweek_1 = dict["events"]["next"]
     gameweek_2 = [gw for gw in dict["fixtures"].keys()][1]
     gameweek_3 = [gw for gw in dict["fixtures"].keys()][2]
+
+    gameweek_1_fixtures = pl.DataFrame(dict["fixtures"][f"{gameweek_1}"]).select(
+        "id", "event", "team_a", "team_h"
+    )
+    gameweek_2_fixtures = pl.DataFrame(dict["fixtures"][f"{gameweek_2}"]).select(
+        "id", "event", "team_a", "team_h"
+    )
+    gameweek_3_fixtures = pl.DataFrame(dict["fixtures"][f"{gameweek_3}"]).select(
+        "id", "event", "team_a", "team_h"
+    )
+
+    league_rules = dict["settings"]["league"]
+    points_rules = dict["settings"]["scoring"]
+    squad_rules = dict["settings"]["squad"]
+
+    return (
+        elements,
+        stats,
+        positions,
+        gameweek_calendar,
+        gameweek_0,
+        gameweek_1,
+        gameweek_1_fixtures,
+        gameweek_2,
+        gameweek_2_fixtures,
+        gameweek_3,
+        gameweek_3_fixtures,
+        league_rules,
+        points_rules,
+        squad_rules,
+    )
