@@ -6,8 +6,3 @@ def json_to_dict(path):
         dictionary = json.load(fh)
     return dictionary
 
-
-def string_to_ints(df, cols: list):
-    dict = {col: pl.i64 for col in cols}
-    df = df.cast(dict)
-    return df
