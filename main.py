@@ -1,6 +1,13 @@
 from dotenv.main import load_dotenv, find_dotenv
 from os import getenv
+
 from src.ingestion.connection import user_authentication
+from src.process.cleaning import (
+    process_transactions, 
+    process_trades, 
+    process_gameweek, 
+    process_details
+)
 
 load_dotenv(find_dotenv())
 league_id = getenv("league_id")
@@ -30,3 +37,9 @@ user_authentication(
     league_id=league_id,
 )
 
+
+# processing and cleaning tables
+transactions = process_transactions(landing_path, "league_transactions.json")
+trades = process_trades(landing_path, "trades.json")
+gameweek = process_gameweek(landing_path, "game_week.json")
+league_name, league_entries, matches, standings = process_details(landing_path, "details.json")
