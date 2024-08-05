@@ -2,6 +2,7 @@ from dotenv.main import load_dotenv, find_dotenv
 from os import getenv
 import polars as pl
 import sys
+
 sys.path.append("././")
 
 from src.process.schema_independent import json_to_dict
@@ -27,6 +28,7 @@ def process_gameweek(base_path):
         .alias("processing_status"),
     )
     return df
+
 
 if __name__ == "__main__":
     gameweek = process_gameweek(landing_path)

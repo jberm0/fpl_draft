@@ -2,6 +2,7 @@ from dotenv.main import load_dotenv, find_dotenv
 from os import getenv
 import polars as pl
 import sys
+
 sys.path.append("././")
 
 from src.process.schema_independent import json_to_dict
@@ -9,6 +10,7 @@ from src.process.schema_independent import json_to_dict
 load_dotenv(find_dotenv())
 
 landing_path = getenv("landing_path")
+
 
 def process_trades(base_path):
     extension = "trades.json"
@@ -27,6 +29,7 @@ def process_trades(base_path):
     # )
     # df = df.unnest("tradeitem_set")
     return df
+
 
 if __name__ == "__main__":
     trades = process_trades(landing_path)

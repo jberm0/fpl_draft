@@ -2,6 +2,7 @@ from dotenv.main import load_dotenv, find_dotenv
 from os import getenv
 import polars as pl
 import sys
+
 sys.path.append("././")
 
 from src.process.schema_independent import json_to_dict
@@ -107,15 +108,15 @@ def process_bootstrap(base_path):
     gameweek_2 = [gw for gw in dict.get("fixtures").keys()][1]
     gameweek_3 = [gw for gw in dict.get("fixtures").keys()][2]
 
-    gameweek_1_fixtures = pl.DataFrame(dict.get("fixtures").get(f"{gameweek_1}")).select(
-        "id", "event", "team_a", "team_h"
-    )
-    gameweek_2_fixtures = pl.DataFrame(dict.get("fixtures").get(f"{gameweek_2}")).select(
-        "id", "event", "team_a", "team_h"
-    )
-    gameweek_3_fixtures = pl.DataFrame(dict.get("fixtures").get(f"{gameweek_3}")).select(
-        "id", "event", "team_a", "team_h"
-    )
+    gameweek_1_fixtures = pl.DataFrame(
+        dict.get("fixtures").get(f"{gameweek_1}")
+    ).select("id", "event", "team_a", "team_h")
+    gameweek_2_fixtures = pl.DataFrame(
+        dict.get("fixtures").get(f"{gameweek_2}")
+    ).select("id", "event", "team_a", "team_h")
+    gameweek_3_fixtures = pl.DataFrame(
+        dict.get("fixtures").get(f"{gameweek_3}")
+    ).select("id", "event", "team_a", "team_h")
 
     league_rules = dict.get("settings").get("league")
     points_rules = dict.get("settings").get("scoring")
@@ -138,6 +139,7 @@ def process_bootstrap(base_path):
         squad_rules,
     )
 
+
 if __name__ == "__main__":
     (
         elements,
@@ -158,5 +160,5 @@ if __name__ == "__main__":
     for x in process_bootstrap(landing_path):
         try:
             print(x.head(10))
-        except:
+        except AttributeError:
             pass

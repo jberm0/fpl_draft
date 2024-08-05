@@ -2,6 +2,7 @@ from dotenv.main import load_dotenv, find_dotenv
 from os import getenv
 import polars as pl
 import sys
+
 sys.path.append("././")
 
 from src.process.schema_independent import json_to_dict
@@ -9,6 +10,7 @@ from src.process.schema_independent import json_to_dict
 load_dotenv(find_dotenv())
 
 landing_path = getenv("landing_path")
+
 
 def process_details(base_path):
     extension = "details.json"
@@ -41,10 +43,9 @@ def process_details(base_path):
 
     return league_name, league_entries, matches, standings
 
+
 if __name__ == "__main__":
-    league_name, league_entries, matches, standings = process_details(
-        landing_path
-    )
+    league_name, league_entries, matches, standings = process_details(landing_path)
     print(league_name)
     print(league_entries)
     print(matches.head(100))

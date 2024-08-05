@@ -1,10 +1,10 @@
 from dotenv.main import load_dotenv, find_dotenv
 from os import getenv
 import sys
+
 sys.path.append("./")
 
 from src.ingestion.connection import user_authentication
-
 
 load_dotenv(find_dotenv())
 league_id = getenv("league_id")
@@ -33,6 +33,3 @@ user_authentication(
     base_path=landing_path,
     league_id=league_id,
 )
-
-
-
