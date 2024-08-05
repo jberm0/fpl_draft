@@ -40,14 +40,14 @@ def retrieve_json(session, tables_selected, base_url, base_path, league_id):
     tables_to_pull = api_calls_json(base_url, base_path, league_id)
     for table in tables_to_pull:
         if table in tables_selected:
-            print(table)
-            print(tables_to_pull[table])
             write_path = tables_to_pull[table]["write_path"]
             api_call = tables_to_pull[table]["api_call"]
+            print(api_call)
             r = session.get(api_call)
             jsonResponse = r.json()
             with open(write_path, 'w') as outputfile:
                 json.dump(jsonResponse, outputfile)
+        print(f"read and downloaded {table} from {api_call} and written to {write_path}")
 
 def user_authentication(
     user_email, password, tables_selected: list, base_url, base_path, league_id
