@@ -2,3 +2,5 @@
 local/
 landing/
 .venv/
+*.pyc
+*_pycache__
