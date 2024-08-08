@@ -10,6 +10,7 @@ from src.process.schema_independent import json_to_dict
 load_dotenv(find_dotenv())
 
 landing_path = getenv("landing_path")
+raw_path = getenv("raw_path")
 
 
 def process_gameweek(base_path):
@@ -32,4 +33,4 @@ def process_gameweek(base_path):
 
 if __name__ == "__main__":
     gameweek = process_gameweek(landing_path)
-    print(gameweek.head(10))
+    gameweek.write_parquet(raw_path + "gameweek.parquet")
