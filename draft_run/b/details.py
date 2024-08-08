@@ -10,6 +10,7 @@ from src.process.schema_independent import json_to_dict
 load_dotenv(find_dotenv())
 
 landing_path = getenv("landing_path")
+raw_path = getenv("raw_path")
 
 
 def process_details(base_path):
@@ -47,6 +48,6 @@ def process_details(base_path):
 if __name__ == "__main__":
     league_name, league_entries, matches, standings = process_details(landing_path)
     print(league_name)
-    print(league_entries)
-    print(matches.head(100))
-    print(standings.head(100))
+    league_entries.write_parquet(raw_path + "league_entries.parquet")
+    matches.write_parquet(raw_path + "h2h_fixtures.parquet")
+    standings.write_parquet(raw_path + "h2h_standings.parquet")
