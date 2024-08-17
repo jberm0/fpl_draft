@@ -9,9 +9,13 @@ from src.utils.env import load_env
 landing_path = load_env(["landing_path"])[0]
 
 
-def process_bootstrap(base_path):
+def bootstrap_dict(base_path):
     extension = "bootstrap-static.json"
     dict = json_to_dict(base_path + extension)
+    return dict
+
+
+def process_elements(dict):
     elements = (
         pl.DataFrame(dict.get("elements"))
         .select(
@@ -82,13 +86,26 @@ def process_bootstrap(base_path):
             }
         )
     )
+
+    return elements
+
+
+def process_stats(dict):
     stats = pl.DataFrame(dict.get("element_stats")).select("name", "abbreviation")
+    return stats
+
+
+def process_positions(dict):
     positions = pl.DataFrame(dict.get("element_types")).select(
         "id",
         "element_count",
         pl.col("singular_name_short").alias("position_abbv"),
         pl.col("plural_name").alias("position"),
     )
+    return positions
+
+
+def process_gameweek_calendar(dict):
     gameweek_calendar = (
         pl.DataFrame(dict.get("events").get("data"))
         .select("id", "name", "deadline_time", "trades_time", "waivers_time")
@@ -100,62 +117,44 @@ def process_bootstrap(base_path):
             }
         )
     )
-    gameweek_0 = dict.get("events").get("current")
-    gameweek_1 = dict.get("events").get("next")
-    gameweek_2 = [gw for gw in dict.get("fixtures").keys()][1]
-    gameweek_3 = [gw for gw in dict.get("fixtures").keys()][2]
+    return gameweek_calendar
 
-    gameweek_1_fixtures = pl.DataFrame(
-        dict.get("fixtures").get(f"{gameweek_1}")
-    ).select("id", "event", "team_a", "team_h")
-    gameweek_2_fixtures = pl.DataFrame(
-        dict.get("fixtures").get(f"{gameweek_2}")
-    ).select("id", "event", "team_a", "team_h")
-    gameweek_3_fixtures = pl.DataFrame(
-        dict.get("fixtures").get(f"{gameweek_3}")
-    ).select("id", "event", "team_a", "team_h")
 
-    league_rules = dict.get("settings").get("league")
-    points_rules = dict.get("settings").get("scoring")
-    squad_rules = dict.get("settings").get("squad")
+def get_gw_plus_1(dict):
+    return dict.get("events").get("next")
 
-    return (
-        elements,
-        stats,
-        positions,
-        gameweek_calendar,
-        gameweek_0,
-        gameweek_1,
-        gameweek_1_fixtures,
-        gameweek_2,
-        gameweek_2_fixtures,
-        gameweek_3,
-        gameweek_3_fixtures,
-        league_rules,
-        points_rules,
-        squad_rules,
-    )
+
+def get_gw_plus_2(dict):
+    return [gw for gw in dict.get("fixtures").keys()][1]
+
+
+def get_gw_plus_3(dict):
+    return [gw for gw in dict.get("fixtures").keys()][2]
+
+
+def get_gw_pl_fixtures(dict, gw):
+    return pl.DataFrame(dict.get("fixtures").get(f"{gw}"))
+
+
+def get_rules(dict, keyword):
+    assert keyword in ["league", "scoring", "squad"]
+    return dict.get("settings").get(keyword)
 
 
 if __name__ == "__main__":
-    (
-        elements,
-        stats,
-        positions,
-        gameweek_calendar,
-        gameweek_0,
-        gameweek_1,
-        gameweek_1_fixtures,
-        gameweek_2,
-        gameweek_2_fixtures,
-        gameweek_3,
-        gameweek_3_fixtures,
-        league_rules,
-        points_rules,
-        squad_rules,
-    ) = process_bootstrap(landing_path)
-    for x in process_bootstrap(landing_path):
-        try:
-            print(x.head(10))
-        except AttributeError:
-            pass
+    pl.Config(set_tbl_cols=15, set_tbl_rows=10, set_tbl_width_chars=150)
+    dict = bootstrap_dict(landing_path)
+    gw_1 = get_gw_plus_1(dict)
+    gw_2 = get_gw_plus_2(dict)
+    gw_3 = get_gw_plus_3(dict)
+
+    elements = process_elements(dict)
+    stats = process_stats(dict)
+    positions = process_positions(dict)
+    gw_calendar = process_gameweek_calendar(dict)
+    fixtures_1 = get_gw_pl_fixtures(dict, gw_1)
+    fixtures_2 = get_gw_pl_fixtures(dict, gw_2)
+    fixtures_3 = get_gw_pl_fixtures(dict, gw_3)
+    league_rules = get_rules(dict, "league")
+    squad_rules = get_rules(dict, "squad")
+    scoring_rules = get_rules(dict, "scoring")
