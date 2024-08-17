@@ -30,3 +30,4 @@ def process_trades(base_path):
 
 if __name__ == "__main__":
     trades = process_trades(landing_path)
+    print(trades.head(100))
