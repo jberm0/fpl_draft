@@ -15,3 +15,4 @@ def write_parquet(df: pl.DataFrame, path: str, **kwargs):
 def write_json(json_object: Dict, path: str):
     with open(path, "w") as f:
         json.dump(json_object, f)
+    print(f"written to {path}")
