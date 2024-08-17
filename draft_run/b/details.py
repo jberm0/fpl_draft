@@ -1,16 +1,13 @@
-from dotenv.main import load_dotenv, find_dotenv
-from os import getenv
 import polars as pl
 import sys
 
 sys.path.append("././")
 
 from src.process.schema_independent import json_to_dict
+from src.utils.input_output import write_parquet
+from src.utils.env import load_env
 
-load_dotenv(find_dotenv())
-
-landing_path = getenv("landing_path")
-raw_path = getenv("raw_path")
+landing_path, raw_path = load_env(["landing_path", "raw_path"])
 
 
 def process_details(base_path):
@@ -48,6 +45,6 @@ def process_details(base_path):
 if __name__ == "__main__":
     league_name, league_entries, matches, standings = process_details(landing_path)
     print(league_name)
-    league_entries.write_parquet(raw_path + "league_entries.parquet")
-    matches.write_parquet(raw_path + "h2h_fixtures.parquet")
-    standings.write_parquet(raw_path + "h2h_standings.parquet")
+    write_parquet(league_entries, raw_path + "league_entries.parquet")
+    write_parquet(matches, raw_path + "h2h_fixtures.parquet")
+    write_parquet(standings, raw_path + "h2h_standings.parquet")

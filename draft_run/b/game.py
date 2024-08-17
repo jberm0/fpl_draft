@@ -1,16 +1,13 @@
-from dotenv.main import load_dotenv, find_dotenv
-from os import getenv
 import polars as pl
 import sys
 
 sys.path.append("././")
 
 from src.process.schema_independent import json_to_dict
+from src.utils.input_output import write_parquet
+from src.utils.env import load_env
 
-load_dotenv(find_dotenv())
-
-landing_path = getenv("landing_path")
-raw_path = getenv("raw_path")
+landing_path, raw_path = load_env(["landing_path", "raw_path"])
 
 
 def process_gameweek(base_path):
@@ -33,4 +30,4 @@ def process_gameweek(base_path):
 
 if __name__ == "__main__":
     gameweek = process_gameweek(landing_path)
-    gameweek.write_parquet(raw_path + "gameweek.parquet")
+    write_parquet(gameweek, raw_path + "gameweek.parquet")

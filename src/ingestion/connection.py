@@ -1,14 +1,11 @@
 import requests
-from dotenv.main import load_dotenv, find_dotenv
-import os
 
 from src.ingestion.download_raw import retrieve_json
+from src.utils.env import load_env
 
-load_dotenv(find_dotenv())
-league_id = os.getenv("league_id")
-team_id = os.getenv("team_id")
-email = os.getenv("email")
-password = os.getenv("password")
+league_id, team_id, email, password = load_env(
+    ["league_id", "team_id", "email", "password"]
+)
 
 
 def user_authentication(

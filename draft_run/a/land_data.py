@@ -1,18 +1,13 @@
-from dotenv.main import load_dotenv, find_dotenv
-from os import getenv
 import sys
 
 sys.path.append("./")
 
 from src.ingestion.connection import user_authentication
+from src.utils.env import load_env
 
-load_dotenv(find_dotenv())
-league_id = getenv("league_id")
-team_id = getenv("team_id")
-email = getenv("email")
-password = getenv("password")
-landing_path = getenv("landing_path")
-base_api_path = getenv("base_api_path")
+league_id, team_id, email, password, landing_path, base_api_path = load_env(
+    ["league_id", "team_id", "email", "password", "landing_path", "base_api_path"]
+)
 
 # defining the tables to pull
 tables_to_pull = [
