@@ -10,7 +10,7 @@ league_id, team_id, email, password, landing_path, base_api_path = load_env(
 )
 
 # defining the tables to pull
-tables_to_pull = [
+primary_tables_to_pull = [
     "league_transactions",
     "trades",
     "details",
@@ -23,7 +23,7 @@ tables_to_pull = [
 user_authentication(
     email,
     password,
-    tables_to_pull,
+    primary_tables_to_pull,
     base_url=base_api_path,
     base_path=landing_path,
     league_id=league_id,
