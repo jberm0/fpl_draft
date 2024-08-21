@@ -16,7 +16,7 @@ league_id, team_id, email, password = load_env(
 )
 
 
-def user_authentication(
+def authenticate_and_pull(
     user_email, password, tables_selected: list, base_url, base_path, league_id
 ):
     session = requests.session()
