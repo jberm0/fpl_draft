@@ -16,3 +16,9 @@ def write_json(json_object: Dict, path: str):
     with open(path, "w") as f:
         json.dump(json_object, f)
     print(f"written to {path}")
+
+
+def read_json(path):
+    f = open(path)
+    data = json.load(f)
+    return data

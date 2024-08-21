@@ -96,6 +96,11 @@ def process_stats(dict):
     return stats
 
 
+def process_teams(dict):
+    teams = pl.DataFrame(dict.get("teams"))
+    return teams
+
+
 def process_positions(dict):
     positions = pl.DataFrame(dict.get("element_types")).select(
         "id",
@@ -151,6 +156,7 @@ if __name__ == "__main__":
 
     elements = process_elements(dict).pipe(write_parquet, raw_path + "elements.parquet")
     stats = process_stats(dict).pipe(write_parquet, raw_path + "stats.parquet")
+    teams = process_teams(dict).pipe(write_parquet, raw_path + "teams.parquet")
     positions = process_positions(dict).pipe(
         write_parquet, raw_path + "positions.parquet"
     )
