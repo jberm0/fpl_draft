@@ -1,6 +1,5 @@
 import sys
 import polars as pl
-from pprint import pprint
 
 sys.path.append("././")
 
@@ -69,43 +68,21 @@ def team_selection_api_call_json(base_url, base_path, entry_id, gameweek):
     }
 
 
-# def secondary_api_calls_json(base_url, base_path, entry_id, gameweek):
-#     tables_to_pull = {
-#         "team_selection": {
-#             "api_call": base_url + f"/entry/{entry_id}/event/{gameweek}",
-#             "write_path": base_path + f"{entry_id}_{gameweek}_selection.json",
-#         },
-#         "live_stats": {
-#             "api_call": base_url + f"/event/{gameweek}/live",
-#             "write_path": base_path + f"{gameweek}_live.json",
-#         },
-#     }
-#     return tables_to_pull
-
-
 def retrieve_primary_json(session, tables_to_pull, tables_selected):
     for table in tables_to_pull:
         if table in tables_selected:
             write_path = tables_to_pull[table]["write_path"]
             api_call = tables_to_pull[table]["api_call"]
-            print(api_call)
             r = session.get(api_call)
             jsonResponse = r.json()
             write_json(jsonResponse, write_path)
-        print(
-            f"read and downloaded {table} from {api_call} and written to {write_path}"
-        )
 
 
 def retrieve_secondary_json(session, tables_to_pull):
-    pprint(tables_to_pull)
     for table in tables_to_pull:
-        print(table)
         vals = list(table.values())[0]
         write_path = vals.get("write_path")
         api_call = vals.get("api_call")
-        print(api_call)
         r = session.get(api_call)
         jsonResponse = r.json()
         write_json(jsonResponse, write_path)
-    print(f"read and downloaded {table} from {api_call} and written to {write_path}")
