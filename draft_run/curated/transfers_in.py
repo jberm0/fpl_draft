@@ -5,13 +5,12 @@ import sys
 
 sys.path.append("./././")
 
+from src.utils.env import load_env
 from src.utils.input_output import read_parquet, read_json
 
 pl.Config(set_tbl_rows=20, set_tbl_cols=20)
 
-raw_path = "data/raw"
-trusted_path = "data/trusted"
-
+trusted_path, raw_path = load_env(["trusted_path", "raw_path"])
 
 elements = read_parquet(f"{raw_path}/elements.parquet")
 scoring_rules = read_json(f"{raw_path}/scoring.json")

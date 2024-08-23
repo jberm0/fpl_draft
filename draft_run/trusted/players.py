@@ -3,10 +3,10 @@ import sys
 
 sys.path.append("./././")
 
+from src.utils.env import load_env
 from src.utils.input_output import read_parquet
 
-raw_path = "data/raw"
-trusted_path = "data/trusted"
+raw_path, trusted_path = load_env(["raw_path", "trusted_path"])
 
 pl.Config(set_tbl_cols=25)
 

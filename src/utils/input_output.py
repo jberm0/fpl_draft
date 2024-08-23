@@ -9,6 +9,8 @@ def read_parquet(path: str, **kwargs) -> pl.DataFrame:
 
 
 def write_parquet(df: pl.DataFrame, path: str, **kwargs):
+    # creates new directory if doesn't exist yet
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     df.write_parquet(path, **kwargs)
     print(f"written to {path}")
 

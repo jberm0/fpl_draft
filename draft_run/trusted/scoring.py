@@ -3,11 +3,11 @@ import sys
 
 sys.path.append("./././")
 
+from src.utils.env import load_env
 from src.utils.input_output import read_json, write_parquet
 from src.process.cleaning import rename_columns_by_regex
 
-raw_path = "data/raw"
-trusted_path = "data/trusted"
+raw_path, trusted_path = load_env(["raw_path", "trusted_path"])
 
 
 def create_scoring(scoring):
@@ -39,4 +39,4 @@ def create_scoring(scoring):
 if __name__ == "__main__":
     scoring = read_json(f"{raw_path}/scoring.json")
     position_scoring = create_scoring(scoring)
-    write_parquet(position_scoring, trusted_path + "/scoring.parquet")
+    write_parquet(position_scoring, trusted_path + "scoring.parquet")

@@ -5,8 +5,6 @@ sys.path.append("././")
 
 from src.utils.input_output import write_json, read_parquet
 
-raw_path = "data/raw"
-
 
 def primary_api_calls_json(base_url, base_path, league_id):
     tables_to_pull = {
@@ -38,13 +36,13 @@ def primary_api_calls_json(base_url, base_path, league_id):
     return tables_to_pull
 
 
-def get_team_ids():
+def get_team_ids(raw_path):
     df = read_parquet(f"{raw_path}/league_entries.parquet")
 
     return pl.Series(df.select("entry_id")).to_list()
 
 
-def get_gameweeks():
+def get_gameweeks(raw_path):
     df = read_parquet(f"{raw_path}/gameweek.parquet")
 
     return [df.select("current_event").item()]

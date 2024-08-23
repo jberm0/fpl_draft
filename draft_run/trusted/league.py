@@ -3,10 +3,10 @@ import sys
 
 sys.path.append("./././")
 
+from src.utils.env import load_env
 from src.utils.input_output import read_parquet, write_parquet
 
-raw_path = "data/raw"
-trusted_path = "data/trusted"
+raw_path, trusted_path = load_env(["raw_path", "trusted_path"])
 
 
 def get_standings(h2h_standings, entries):
@@ -83,5 +83,5 @@ if __name__ == "__main__":
     head_to_head = get_head_to_head(h2h_fixtures, entries)
     standings = get_standings(h2h_standings, entries)
 
-    write_parquet(head_to_head, trusted_path + "/head_to_head.parquet")
-    write_parquet(standings, trusted_path + "/standings.parquet")
+    write_parquet(head_to_head, trusted_path + "head_to_head.parquet")
+    write_parquet(standings, trusted_path + "standings.parquet")
