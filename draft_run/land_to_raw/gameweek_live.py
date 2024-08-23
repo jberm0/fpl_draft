@@ -13,7 +13,7 @@ gameweeks = get_gameweeks(raw_path)
 
 
 def process_live_gameweek(gw_id):
-    dict = read_json(landing_path + f"/gw_{gw_id}/live.json")
+    dict = read_json(landing_path + f"{gw_id}/live.json")
     return dict
 
 
@@ -56,7 +56,7 @@ def process_live_matches(dict):
     match_level = dict.get("fixtures")
 
     match_dfs = []
-    for match in match_level[:1]:
+    for match in match_level:
         match_df = (
             pl.from_dict(match)
             .select(
