@@ -52,7 +52,7 @@ def live_stats_api_call_json(base_url, base_path, gameweek):
     return {
         "live_stats": {
             "api_call": base_url + f"event/{gameweek}/live",
-            "write_path": base_path + f"gw_{gameweek}/live.json",
+            "write_path": base_path + f"{gameweek}/live.json",
         },
     }
 
@@ -61,7 +61,7 @@ def team_selection_api_call_json(base_url, base_path, entry_id, gameweek):
     return {
         "team_selection": {
             "api_call": base_url + f"entry/{entry_id}/event/{gameweek}",
-            "write_path": base_path + f"gw_{gameweek}/{entry_id}_selection.json",
+            "write_path": base_path + f"{gameweek}/{entry_id}_selection.json",
         },
     }
 
