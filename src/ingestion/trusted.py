@@ -300,3 +300,19 @@ def trusted_scoring(raw_path):
     position_scoring = pl.concat(position_points_dfs, how="vertical")
 
     return position_scoring
+
+
+def create_teams_and_fixtures(fixtures_1, fixtures_2, fixtures_3, teams):
+    all_fixtures = pl.concat([fixtures_1, fixtures_2, fixtures_3], how="vertical")
+
+    teams_and_fixtures = all_fixtures.join(
+        teams.select("id", pl.col("name").alias("team_h_name")),
+        left_on="team_h",
+        right_on="id",
+    ).join(
+        teams.select("id", pl.col("name").alias("team_a_name")),
+        left_on="team_a",
+        right_on="id",
+    )
+
+    return teams_and_fixtures
