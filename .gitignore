@@ -1,6 +1,6 @@
 *.env
 local/
-landing/
+data/
 .venv/
 *.pyc
 *_pycache__
