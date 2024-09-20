@@ -55,3 +55,5 @@ def authenticate_and_pull(
 
     retrieve_secondary_json(session, secondary_tables_to_pull)
     print("successfully read secondary tables")
+
+    print("read all raw tables")

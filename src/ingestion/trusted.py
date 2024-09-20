@@ -378,7 +378,7 @@ def teams_and_fixtures(raw_path, trusted_path):
     write_parquet(teams_and_fixtures, trusted_path + "upcoming_fixtures.parquet")
 
 
-def trusted_data(raw_path, trusted_path):
+def raw_to_trusted(raw_path, trusted_path):
     league(raw_path, trusted_path)
     live_matches(raw_path, trusted_path)
     live_scores(raw_path, trusted_path)
@@ -387,3 +387,5 @@ def trusted_data(raw_path, trusted_path):
     players(raw_path, trusted_path)
     scoring(raw_path, trusted_path)
     teams_and_fixtures(raw_path, trusted_path)
+
+    print("written trusted data")

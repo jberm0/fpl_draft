@@ -433,3 +433,5 @@ def land_to_raw(raw_path, landing_path):
     gameweek_live(raw_path, landing_path)
     selections(raw_path, landing_path)
     transactions(raw_path, landing_path)
+
+    print("written raw data")
