@@ -1,6 +1,6 @@
 import polars as pl
 
-from src.utils.input_output import read_parquet, read_json
+from src.utils.input_output import read_parquet, read_json, write_parquet
 from src.process.cleaning import rename_columns_by_regex
 
 
@@ -316,3 +316,74 @@ def create_teams_and_fixtures(fixtures_1, fixtures_2, fixtures_3, teams):
     )
 
     return teams_and_fixtures
+
+
+def league(raw_path, trusted_path):
+    h2h_fixtures = read_parquet(f"{raw_path}/h2h_fixtures.parquet")
+    h2h_standings = read_parquet(f"{raw_path}/h2h_standings.parquet")
+    entries = read_parquet(f"{raw_path}/league_entries.parquet")
+
+    head_to_head = get_head_to_head(h2h_fixtures, entries)
+    standings = get_standings(h2h_standings, entries)
+
+    write_parquet(head_to_head, trusted_path + "head_to_head.parquet")
+    write_parquet(standings, trusted_path + "standings.parquet")
+
+
+def live_matches(raw_path, trusted_path):
+    matches_trusted = trusted_match_stats(raw_path, trusted_path)
+    write_parquet(matches_trusted, trusted_path + "match_stats.parquet")
+
+
+def live_scores(raw_path, trusted_path):
+    player_actions, player_points = trusted_scores(raw_path, trusted_path)
+    write_parquet(player_actions, trusted_path + "player_actions.parquet")
+    write_parquet(player_points, trusted_path + "player_points.parquet")
+
+
+def live_selections(raw_path, trusted_path):
+    trusted_selections_df = trusted_selections(raw_path, trusted_path)
+    write_parquet(trusted_selections_df, trusted_path + "selections.parquet")
+
+
+def live_stats(raw_path, trusted_path):
+    trusted_stats_df = trusted_stats(raw_path, trusted_path)
+    write_parquet(trusted_stats_df, trusted_path + "stats.parquet")
+
+
+def players(raw_path, trusted_path):
+    trusted_players_df = trusted_players(raw_path)
+    write_parquet(trusted_players_df, trusted_path + "players.parquet")
+
+
+def scoring(raw_path, trusted_path):
+    position_scoring = trusted_scoring(raw_path)
+    write_parquet(position_scoring, trusted_path + "scoring.parquet")
+
+
+def teams_and_fixtures(raw_path, trusted_path):
+    fixtures_1 = read_parquet(f"{raw_path}/fixtures_1.parquet").select(
+        pl.lit("+1").alias("fixture"), "team_h", "team_a"
+    )
+    fixtures_2 = read_parquet(f"{raw_path}/fixtures_2.parquet").select(
+        pl.lit("+2").alias("fixture"), "team_h", "team_a"
+    )
+    fixtures_3 = read_parquet(f"{raw_path}/fixtures_3.parquet").select(
+        pl.lit("+3").alias("fixture"), "team_h", "team_a"
+    )
+    teams = read_parquet(f"{raw_path}/teams.parquet")
+    teams_and_fixtures = create_teams_and_fixtures(
+        fixtures_1, fixtures_2, fixtures_3, teams
+    )
+    write_parquet(teams_and_fixtures, trusted_path + "upcoming_fixtures.parquet")
+
+
+def trusted_data(raw_path, trusted_path):
+    league(raw_path, trusted_path)
+    live_matches(raw_path, trusted_path)
+    live_scores(raw_path, trusted_path)
+    live_selections(raw_path, trusted_path)
+    live_stats(raw_path, trusted_path)
+    players(raw_path, trusted_path)
+    scoring(raw_path, trusted_path)
+    teams_and_fixtures(raw_path, trusted_path)

@@ -379,9 +379,12 @@ def bootstrap(raw_path, landing_path):
     get_gw_pl_fixtures(dict, gw_2).pipe(write_parquet, raw_path + "fixtures_2.parquet")
     get_gw_pl_fixtures(dict, gw_3).pipe(write_parquet, raw_path + "fixtures_3.parquet")
 
-    get_rules(dict, "league").pipe(write_json, raw_path + "league_rules.json")
-    get_rules(dict, "squad").pipe(write_json, raw_path + "squad.json")
-    get_rules(dict, "scoring").pipe(write_json, raw_path + "scoring.json")
+    league_rules = get_rules(dict, "league")
+    write_json(league_rules, raw_path + "league_rules.json")
+    squad_rules = get_rules(dict, "squad")
+    write_json(squad_rules, raw_path + "squad.json")
+    scoring_rules = get_rules(dict, "scoring")
+    write_json(scoring_rules, raw_path + "scoring.json")
 
 
 def details(raw_path, landing_path):
@@ -414,7 +417,7 @@ def selections(raw_path, landing_path):
     all_team_ids = get_team_ids(raw_path)
 
     for gw_id in all_gameweeks:
-        selections = get_gw_team_selection(gw_id, all_team_ids)
+        selections = get_gw_team_selection(landing_path, gw_id, all_team_ids)
         write_parquet(selections, raw_path + f"live/selections/{gw_id}.parquet")
 
 
