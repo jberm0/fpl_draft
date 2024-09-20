@@ -11,8 +11,8 @@ from src.ingestion.download_raw import (
 )
 from src.utils.env import load_env
 
-league_id, team_id, email, password, raw_path = load_env(
-    ["league_id", "team_id", "email", "password", "raw_path"]
+league_id, team_id, email, password, raw_path, landing_path = load_env(
+    ["league_id", "team_id", "email", "password", "raw_path", "landing_path"]
 )
 
 
@@ -40,7 +40,7 @@ def authenticate_and_pull(
     print("successfully read primary tables")
 
     team_ids = get_team_ids(raw_path)
-    all_gameweeks = get_gameweeks(raw_path)
+    all_gameweeks = get_gameweeks(landing_path)
 
     # secondary tables are tables that use values from primary tables as part of the API call, e.g. team_id or gameweek number
     secondary_tables_to_pull = []

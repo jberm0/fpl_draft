@@ -3,7 +3,7 @@ import polars as pl
 
 sys.path.append("././")
 
-from src.utils.input_output import write_json, read_parquet
+from src.utils.input_output import write_json, read_parquet, read_json
 
 
 def primary_api_calls_json(base_url, base_path, league_id):
@@ -42,10 +42,11 @@ def get_team_ids(raw_path):
     return pl.Series(df.select("entry_id")).to_list()
 
 
-def get_gameweeks(raw_path):
-    df = read_parquet(f"{raw_path}/gameweek.parquet")
+def get_gameweeks(landing_path):
+    gameweek_dict = read_json(f"{landing_path}game_week.json")
+    current_gw = gameweek_dict.get("current_event")
 
-    return [df.select("current_event").item()]
+    return list(range(1, current_gw + 1))
 
 
 def live_stats_api_call_json(base_url, base_path, gameweek):
