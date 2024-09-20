@@ -1,6 +1,6 @@
 import requests
 
-from src.ingestion.download_raw import (
+from src.ingestion.landing import (
     retrieve_primary_json,
     get_team_ids,
     primary_api_calls_json,
