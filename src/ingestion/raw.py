@@ -2,7 +2,8 @@ import polars as pl
 from typing import List
 
 from src.process.schema_independent import json_to_dict
-from src.utils.input_output import read_json
+from src.ingestion.landing import get_gameweeks, get_team_ids
+from src.utils.input_output import read_json, write_json, write_parquet
 
 
 def bootstrap_dict(base_path):
@@ -359,3 +360,73 @@ def process_transactions(base_path):
     dict = json_to_dict(base_path + extension).get("transactions")
     df = pl.DataFrame(dict)
     return df
+
+
+def bootstrap(raw_path, landing_path):
+    dict = bootstrap_dict(landing_path)
+    gw_1 = get_gw_plus_1(dict)
+    gw_2 = get_gw_plus_2(dict)
+    gw_3 = get_gw_plus_3(dict)
+
+    process_elements(dict).pipe(write_parquet, raw_path + "elements.parquet")
+    process_stats(dict).pipe(write_parquet, raw_path + "stats.parquet")
+    process_teams(dict).pipe(write_parquet, raw_path + "teams.parquet")
+    process_positions(dict).pipe(write_parquet, raw_path + "positions.parquet")
+    process_gameweek_calendar(dict).pipe(
+        write_parquet, raw_path + "gw_calendar.parquet"
+    )
+    get_gw_pl_fixtures(dict, gw_1).pipe(write_parquet, raw_path + "fixtures_1.parquet")
+    get_gw_pl_fixtures(dict, gw_2).pipe(write_parquet, raw_path + "fixtures_2.parquet")
+    get_gw_pl_fixtures(dict, gw_3).pipe(write_parquet, raw_path + "fixtures_3.parquet")
+
+    get_rules(dict, "league").pipe(write_json, raw_path + "league_rules.json")
+    get_rules(dict, "squad").pipe(write_json, raw_path + "squad.json")
+    get_rules(dict, "scoring").pipe(write_json, raw_path + "scoring.json")
+
+
+def details(raw_path, landing_path):
+    league_name, league_entries, matches, standings = process_details(landing_path)
+    write_parquet(league_entries, raw_path + "league_entries.parquet")
+    write_parquet(matches, raw_path + "h2h_fixtures.parquet")
+    write_parquet(standings, raw_path + "h2h_standings.parquet")
+
+
+def gameweek(raw_path, landing_path):
+    gameweek = process_gameweek(landing_path)
+    write_parquet(gameweek, raw_path + "gameweek.parquet")
+
+
+def gameweek_live(raw_path, landing_path):
+    gameweeks = get_gameweeks(landing_path)
+
+    for gw_id in gameweeks:
+        gw_dict = process_live_gameweek(landing_path, gw_id)
+        scores, stats = process_live_elements(gw_dict, gw_id)
+        write_parquet(scores, raw_path + f"live/scores/{gw_id}.parquet")
+        write_parquet(stats, raw_path + f"live/stats/{gw_id}.parquet")
+
+        matches = process_live_matches(gw_dict)
+        write_parquet(matches, raw_path + f"live/matches/{gw_id}.parquet")
+
+
+def selections(raw_path, landing_path):
+    all_gameweeks = get_gameweeks(landing_path)
+    all_team_ids = get_team_ids(raw_path)
+
+    for gw_id in all_gameweeks:
+        selections = get_gw_team_selection(gw_id, all_team_ids)
+        write_parquet(selections, raw_path + f"live/selections/{gw_id}.parquet")
+
+
+def transactions(raw_path, landing_path):
+    transactions = process_transactions(landing_path)
+    write_parquet(transactions, raw_path + "transactions.parquet")
+
+
+def land_to_raw(raw_path, landing_path):
+    bootstrap(raw_path, landing_path)
+    details(raw_path, landing_path)
+    gameweek(raw_path, landing_path)
+    gameweek_live(raw_path, landing_path)
+    selections(raw_path, landing_path)
+    transactions(raw_path, landing_path)
