@@ -10,14 +10,14 @@ from src.utils.env import load_env
 
 landing_path, raw_path = load_env(["landing_path", "raw_path"])
 
-all_gameweeks = get_gameweeks(raw_path)
+all_gameweeks = get_gameweeks(landing_path)
 all_team_ids = get_team_ids(raw_path)
 
 
 def get_gw_team_selection(gw_id: int, team_ids: List[int]):
     gw_selections = []
     for team_id in team_ids:
-        dict = read_json(landing_path + f"gw_{gw_id}/{team_id}_selection.json").get(
+        dict = read_json(landing_path + f"{gw_id}/{team_id}_selection.json").get(
             "picks"
         )
         selection = pl.DataFrame(dict).select(
@@ -30,4 +30,4 @@ def get_gw_team_selection(gw_id: int, team_ids: List[int]):
 if __name__ == "__main__":
     for gw_id in all_gameweeks:
         selections = get_gw_team_selection(gw_id, all_team_ids)
-        write_parquet(selections, raw_path + f"/live/selections/{gw_id}.parquet")
+        write_parquet(selections, raw_path + f"live/selections/{gw_id}.parquet")

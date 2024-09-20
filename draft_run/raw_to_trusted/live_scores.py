@@ -56,4 +56,4 @@ def trusted_scores():
 if __name__ == "__main__":
     player_actions, player_points = trusted_scores()
     write_parquet(player_actions, trusted_path + "player_actions.parquet")
-    write_parquet(player_points, trusted_path + "player_actions.parquet")
+    write_parquet(player_points, trusted_path + "player_points.parquet")

@@ -9,7 +9,7 @@ from src.utils.env import load_env
 
 landing_path, raw_path = load_env(["landing_path", "raw_path"])
 
-gameweeks = get_gameweeks(raw_path)
+gameweeks = get_gameweeks(landing_path)
 
 
 def process_live_gameweek(gw_id):
@@ -146,8 +146,8 @@ if __name__ == "__main__":
     for gw_id in gameweeks:
         gw_dict = process_live_gameweek(gw_id)
         scores, stats = process_live_elements(gw_dict, gw_id)
-        write_parquet(scores, raw_path + f"/live/scores/{gw_id}.parquet")
-        write_parquet(stats, raw_path + f"/live/stats/{gw_id}.parquet")
+        write_parquet(scores, raw_path + f"live/scores/{gw_id}.parquet")
+        write_parquet(stats, raw_path + f"live/stats/{gw_id}.parquet")
 
         matches = process_live_matches(gw_dict)
-        write_parquet(matches, raw_path + f"/live/matches/{gw_id}.parquet")
+        write_parquet(matches, raw_path + f"live/matches/{gw_id}.parquet")
