@@ -20,7 +20,6 @@ standings = pl.read_parquet(
 st.write(standings)
 
 last_gw = pl.Series(standings.select(pl.first("P"))).to_list()[0]
-st.write(last_gw)
 
 st.markdown("## Fixtures and Results")
 st.markdown("### Filters")
