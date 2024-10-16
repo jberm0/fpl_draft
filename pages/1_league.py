@@ -1,10 +1,11 @@
 import streamlit as st
 import polars as pl
+from src.utils.env import load_env
+
+trusted_path = load_env(["trusted_path"])[0]
 
 st.markdown("## League Standings")
-standings = pl.read_parquet(
-    "/Users/jonah/Documents/projects/fpl_draft/data/trusted/standings.parquet"
-).select(
+standings = pl.read_parquet(f"{trusted_path}standings.parquet").select(
     "rank",
     "team_name",
     (pl.col("matches_won") + pl.col("matches_drawn") + pl.col("matches_lost")).alias(
@@ -29,9 +30,7 @@ gw_filter = col1.slider(
 )
 team_filter = col2.text_input("Search Team", value="")
 fixtures = (
-    pl.read_parquet(
-        "/Users/jonah/Documents/projects/fpl_draft/data/trusted/head_to_head.parquet"
-    )
+    pl.read_parquet(f"{trusted_path}head_to_head.parquet")
     .select(
         pl.col("event").alias("gameweek"),
         pl.col("team_name_1").alias("team_1"),
