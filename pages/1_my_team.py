@@ -102,3 +102,10 @@ head_to_head = (
 )
 
 st.bar_chart(data=head_to_head, x="event", y="diff", stack=True, color="win")
+
+st.write("## Home and Away")
+
+# TODO:
+# my points composition of players who are home and away
+# form guide - who to get rid of
+# tough next fixtures
