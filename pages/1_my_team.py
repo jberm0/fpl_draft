@@ -105,7 +105,61 @@ st.bar_chart(data=head_to_head, x="event", y="diff", stack=True, color="win")
 
 st.write("## Home and Away")
 
+match_stats = (
+    pl.read_parquet(f"{trusted_path}match_stats.parquet")
+    .select("event", "h_or_a", "team_name", "name", "opp_name")
+    .join(
+        selections,
+        right_on=["event", "team", "player"],
+        left_on=["event", "team_name", "name"],
+        how="inner",
+    )
+    .join(
+        points,
+        left_on=["event", "name", "team_name"],
+        right_on=["event", "web_name", "short_name"],
+        how="left",
+    )
+    .select(
+        "event",
+        "h_or_a",
+        "team_name",
+        "opp_name",
+        "name",
+        "minutes",
+        "yellow_cards",
+        "clean_sheets",
+        "goals_scored",
+        "assists",
+        "bonus",
+        "saves",
+        "own_goals",
+        "goals_conceded",
+        "red_cards",
+        "penalties_missed",
+        "penalties_saved",
+    )
+)
+
+match_stats = match_stats.select(
+    "event",
+    "h_or_a",
+    "name",
+    "team_name",
+    "opp_name",
+    match_stats.select(pl.exclude("event", "h_or_a", "name", "team_name", "opp_name"))
+    .sum_horizontal()
+    .alias("total"),
+)
+
+st.bar_chart(
+    match_stats.group_by("event", "h_or_a").agg(pl.sum("total").alias("total_points")),
+    x="event",
+    y="total_points",
+    color="h_or_a",
+    stack=False,
+)
+
 # TODO:
-# my points composition of players who are home and away
 # form guide - who to get rid of
-# tough next fixtures
+# next fixtures difficulty
