@@ -4,18 +4,19 @@ from src.utils.env import load_env
 
 trusted_path = load_env(["trusted_path"])[0]
 
-st.write("# My Team")
+selections = pl.read_parquet(f"{trusted_path}selections.parquet")
+player_points = pl.read_parquet(f"{trusted_path}player_points.parquet")
+players = pl.read_parquet(f"{trusted_path}players.parquet")
+head_to_head = pl.read_parquet(f"{trusted_path}head_to_head.parquet")
+match_stats = pl.read_parquet(f"{trusted_path}match_stats.parquet")
+stats = pl.read_parquet(f"{trusted_path}stats.parquet")
 
-st.markdown("## Selections")
-selections = (
-    pl.read_parquet(f"{trusted_path}selections.parquet")
-    .filter(pl.col("owner") == "JB")
-    .select("event", "team", "player")
+
+my_selections = selections.filter(pl.col("owner") == "JB").select(
+    "event", "team", "player"
 )
 
-points = pl.read_parquet(f"{trusted_path}player_points.parquet")
-
-players = pl.read_parquet(f"{trusted_path}players.parquet").select(
+player_id_position = players.select(
     "web_name",
     "id",
     pl.col("element_type")
@@ -23,15 +24,20 @@ players = pl.read_parquet(f"{trusted_path}players.parquet").select(
     .alias("position"),
 )
 
+st.write("# My Team")
+
+st.markdown("## Selections")
+
+
 my_team = (
-    selections.join(
-        points,
+    my_selections.join(
+        player_points,
         left_on=["event", "player", "team"],
         right_on=["event", "web_name", "short_name"],
         how="left",
     )
     .join(
-        players,
+        player_id_position,
         left_on=["player", "player_id"],
         right_on=["web_name", "id"],
         how="left",
@@ -67,6 +73,7 @@ by_position = my_team.group_by("event", "position").agg(pl.sum("total"))
 st.line_chart(data=by_position, x="event", y="total", color="position")
 
 st.write("#### Drill down into position")
+
 position_filter = st.selectbox("Select Position", ["GK", "DEF", "MID", "FWD"])
 
 my_team = my_team.filter(pl.col("position") == position_filter)
@@ -80,9 +87,8 @@ st.line_chart(
 
 st.write("## Record")
 
-head_to_head = (
-    pl.read_parquet(f"{trusted_path}head_to_head.parquet")
-    .filter(pl.col("finished"))
+my_points_diff = (
+    head_to_head.filter(pl.col("finished"))
     .filter((pl.col("owner_1") == "JB") | (pl.col("owner_2") == "JB"))
     .select(
         "event",
@@ -101,13 +107,12 @@ head_to_head = (
     .with_columns((pl.when(pl.col("diff") >= 0).then(1).otherwise(0).alias("win")))
 )
 
-st.bar_chart(data=head_to_head, x="event", y="diff", stack=True, color="win")
+st.bar_chart(data=my_points_diff, x="event", y="diff", stack=True, color="win")
 
 st.write("## Home and Away")
 
-match_stats = (
-    pl.read_parquet(f"{trusted_path}match_stats.parquet")
-    .select("event", "h_or_a", "team_name", "name", "opp_name")
+home_away = (
+    match_stats.select("event", "h_or_a", "team_name", "name", "opp_name")
     .join(
         selections,
         right_on=["event", "team", "player"],
@@ -115,7 +120,7 @@ match_stats = (
         how="inner",
     )
     .join(
-        points,
+        player_points,
         left_on=["event", "name", "team_name"],
         right_on=["event", "web_name", "short_name"],
         how="left",
@@ -141,24 +146,43 @@ match_stats = (
     )
 )
 
-match_stats = match_stats.select(
+home_away = home_away.select(
     "event",
     "h_or_a",
     "name",
     "team_name",
     "opp_name",
-    match_stats.select(pl.exclude("event", "h_or_a", "name", "team_name", "opp_name"))
+    home_away.select(pl.exclude("event", "h_or_a", "name", "team_name", "opp_name"))
     .sum_horizontal()
     .alias("total"),
 )
 
 st.bar_chart(
-    match_stats.group_by("event", "h_or_a").agg(pl.sum("total").alias("total_points")),
+    home_away.group_by("event", "h_or_a").agg(pl.sum("total").alias("total_points")),
     x="event",
     y="total_points",
     color="h_or_a",
     stack=False,
 )
+
+st.write("## Form Guide")
+
+st.write(stats)
+
+team_form = my_selections.join(
+    match_stats,
+    left_on=["event", "player", "team"],
+    right_on=["event", "name", "team_name"],
+    how="left",
+).join(
+    stats,
+    left_on=["event", "team", "element"],
+    right_on=["event", "web_name", "player_id"],
+    how="left",
+)
+
+st.write(team_form)
+
 
 # TODO:
 # form guide - who to get rid of
