@@ -18,14 +18,10 @@ with st.sidebar:
     owner_filter = st.selectbox(
         label="Select Owner", options=["JB", "KO", "VA", "LJ", "GN", "SH", "MM", "FM"]
     )
-    position_filter = st.selectbox(
-        "Select Position", ["All", "GK", "DEF", "MID", "FWD"]
-    )
 
 selections = selections.filter(pl.col("owner") == owner_filter).select(
     "event", "team", "player"
 )
-
 
 player_id_position = players.select(
     "web_name",
@@ -34,11 +30,6 @@ player_id_position = players.select(
     .replace_strict([1, 2, 3, 4], ["GK", "DEF", "MID", "FWD"])
     .alias("position"),
 )
-
-st.write("# Team Performance")
-
-st.markdown("## Points by Position")
-
 
 team = (
     selections.join(
@@ -81,9 +72,6 @@ team = team.select(
 )
 
 by_position = team.group_by("event", "position").agg(pl.sum("total"))
-st.line_chart(data=by_position, x="event", y="total", color="position")
-
-st.write("## Points Difference")
 
 points_diff = (
     head_to_head.filter(pl.col("finished"))
@@ -104,21 +92,6 @@ points_diff = (
     )
     .with_columns((pl.when(pl.col("diff") >= 0).then(1).otherwise(0).alias("win")))
 )
-
-st.bar_chart(data=points_diff, x="event", y="diff", stack=True, color="win")
-
-st.write("## Points by Player")
-
-if position_filter != "All":
-    team = team.filter(pl.col("position") == position_filter)
-st.line_chart(
-    data=team.select("position", "event", "total", "player"),
-    x="event",
-    y="total",
-    color="player",
-)
-
-st.write("## Home and Away Breakdown")
 
 home_away = (
     match_stats.select("event", "h_or_a", "team_name", "name", "opp_name")
@@ -165,16 +138,6 @@ home_away = home_away.select(
     .sum_horizontal()
     .alias("total"),
 )
-
-st.bar_chart(
-    home_away.group_by("event", "h_or_a").agg(pl.sum("total").alias("total_points")),
-    x="event",
-    y="total_points",
-    color="h_or_a",
-    stack=False,
-)
-
-st.write("## Player Form Guide")
 
 metrics = [
     "minutes",
@@ -245,7 +208,45 @@ team_form = (
     )
 )
 
-metric_filter = st.multiselect(
+
+st.write("# Team Performance")
+
+team_tab, position_tab, player_tab = st.tabs(["Team", "Position", "Player"])
+
+position_tab.markdown("## Points by Position")
+
+position_tab.line_chart(data=by_position, x="event", y="total", color="position")
+
+
+team_tab.write("## Points Difference")
+team_tab.bar_chart(data=points_diff, x="event", y="diff", stack=True, color="win")
+
+player_tab.write("## Points by Player")
+position_filter = player_tab.selectbox(
+    "Select Position", ["All", "GK", "DEF", "MID", "FWD"]
+)
+if position_filter != "All":
+    team = team.filter(pl.col("position") == position_filter)
+player_tab.line_chart(
+    data=team.select("position", "event", "total", "player"),
+    x="event",
+    y="total",
+    color="player",
+)
+
+team_tab.write("## Home and Away Breakdown")
+
+team_tab.bar_chart(
+    home_away.group_by("event", "h_or_a").agg(pl.sum("total").alias("total_points")),
+    x="event",
+    y="total_points",
+    color="h_or_a",
+    stack=False,
+)
+
+player_tab.write("## Player Form Guide")
+
+metric_filter = player_tab.multiselect(
     label="Metric Filter", options=metrics, default="total_points"
 )
 metrics_cumulative = team_form.select(
@@ -263,17 +264,16 @@ if position_filter != "All":
         pl.col("position") == position_filter
     )
 
-st.line_chart(
+player_tab.line_chart(
     data=metrics_cumulative,
     x="event",
     y=(f"cumulative_{metric}" for metric in metric_filter),
     color="player",
 )
 
+player_tab.write("## Player Quadrants")
 
-st.write("## Player Quadrants")
-
-col1, col2 = st.columns(2)
+col1, col2 = player_tab.columns(2)
 y_metric = col1.selectbox(
     label="Metric Y-Axis", options=metrics, placeholder="goals_scored"
 )
@@ -282,16 +282,25 @@ x_metric = col2.selectbox(
 )
 
 if y_metric == x_metric:
-    team_quadrants = team_form.group_by("player").agg(
-        pl.sum(y_metric).alias(y_metric), pl.sum("total_points").alias("total_points")
+    team_quadrants = (
+        team_form.filter(pl.col("position") == position_filter)
+        .group_by("player", "position")
+        .agg(
+            pl.sum(y_metric).alias(y_metric),
+            pl.sum("total_points").alias("total_points"),
+        )
     )
 else:
-    team_quadrants = team_form.group_by("player").agg(
-        pl.sum(y_metric).alias(y_metric),
-        pl.sum(x_metric).alias(x_metric),
-        pl.sum("total_points").alias("total_points"),
+    team_quadrants = (
+        team_form.filter(pl.col("position") == position_filter)
+        .group_by("player")
+        .agg(
+            pl.sum(y_metric).alias(y_metric),
+            pl.sum(x_metric).alias(x_metric),
+            pl.sum("total_points").alias("total_points"),
+        )
     )
 
-st.scatter_chart(
+player_tab.scatter_chart(
     data=team_quadrants, x=x_metric, y=y_metric, color="player", size="total_points"
 )
