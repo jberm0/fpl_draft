@@ -18,7 +18,9 @@ with st.sidebar:
     owner_filter = st.selectbox(
         label="Select Owner", options=["JB", "KO", "VA", "LJ", "GN", "SH", "MM", "FM"]
     )
-    position_filter = st.selectbox("Select Position", ["GK", "DEF", "MID", "FWD"])
+    position_filter = st.selectbox(
+        "Select Position", ["All", "GK", "DEF", "MID", "FWD"]
+    )
 
 selections = selections.filter(pl.col("owner") == owner_filter).select(
     "event", "team", "player"
@@ -81,17 +83,6 @@ team = team.select(
 by_position = team.group_by("event", "position").agg(pl.sum("total"))
 st.line_chart(data=by_position, x="event", y="total", color="position")
 
-st.write("#### Drill down into position")
-
-team = team.filter(pl.col("position") == position_filter)
-st.line_chart(
-    data=team.select("position", "event", "total", "player"),
-    x="event",
-    y="total",
-    color="player",
-)
-
-
 st.write("## Record")
 
 points_diff = (
@@ -115,6 +106,17 @@ points_diff = (
 )
 
 st.bar_chart(data=points_diff, x="event", y="diff", stack=True, color="win")
+
+st.write("## Points by position")
+
+if position_filter != "All":
+    team = team.filter(pl.col("position") == position_filter)
+st.line_chart(
+    data=team.select("position", "event", "total", "player"),
+    x="event",
+    y="total",
+    color="player",
+)
 
 st.write("## Home and Away")
 
@@ -249,15 +251,47 @@ metric_filter = st.multiselect(
 metrics_cumulative = team_form.select(
     "event",
     "player",
+    "position",
     *[
         pl.col(metric).cum_sum().over("player").alias(f"cumulative_{metric}")
         for metric in metric_filter
     ],
 )
 
+if position_filter != "All":
+    metrics_cumulative = metrics_cumulative.filter(
+        pl.col("position") == position_filter
+    )
+
 st.line_chart(
     data=metrics_cumulative,
     x="event",
     y=(f"cumulative_{metric}" for metric in metric_filter),
     color="player",
+)
+
+
+st.write("## Quadrants")
+
+col1, col2 = st.columns(2)
+y_metric = col1.selectbox(
+    label="Metric Y-Axis", options=metrics, placeholder="goals_scored"
+)
+x_metric = col2.selectbox(
+    label="Metric X-Axis", options=metrics, placeholder="expected_goals_scored"
+)
+
+if y_metric == x_metric:
+    team_quadrants = team_form.group_by("player").agg(
+        pl.sum(y_metric).alias(y_metric), pl.sum("total_points").alias("total_points")
+    )
+else:
+    team_quadrants = team_form.group_by("player").agg(
+        pl.sum(y_metric).alias(y_metric),
+        pl.sum(x_metric).alias(x_metric),
+        pl.sum("total_points").alias("total_points"),
+    )
+
+st.scatter_chart(
+    data=team_quadrants, x=x_metric, y=y_metric, color="player", size="total_points"
 )
