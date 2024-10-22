@@ -426,6 +426,19 @@ def transactions(raw_path, landing_path):
     write_parquet(transactions, raw_path + "transactions.parquet")
 
 
+def fixtures(raw_path, landing_path):
+    fixtures = pl.DataFrame(read_json(f"{landing_path}fixtures.json")).select(
+        "event",
+        "team_a",
+        "team_a_score",
+        "team_h",
+        "team_h_score",
+        "team_h_difficulty",
+        "team_a_difficulty",
+    )
+    write_parquet(fixtures, f"{raw_path}fixtures.parquet")
+
+
 def land_to_raw(raw_path, landing_path):
     bootstrap(raw_path, landing_path)
     details(raw_path, landing_path)
@@ -433,5 +446,6 @@ def land_to_raw(raw_path, landing_path):
     gameweek_live(raw_path, landing_path)
     selections(raw_path, landing_path)
     transactions(raw_path, landing_path)
+    fixtures(raw_path, landing_path)
 
     print("written raw data")
