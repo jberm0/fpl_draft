@@ -41,6 +41,7 @@ if __name__ == "__main__":
         "bootstrap_static",
         "league_details",
         "game_week",
+        "fixtures",
     ]
     authenticate_and_pull(
         email,

@@ -35,9 +35,9 @@ player_id_position = players.select(
     .alias("position"),
 )
 
-st.write("# Team Summary")
+st.write("# Team Performance")
 
-st.markdown("## Selections")
+st.markdown("## Points by Position")
 
 
 team = (
@@ -83,7 +83,7 @@ team = team.select(
 by_position = team.group_by("event", "position").agg(pl.sum("total"))
 st.line_chart(data=by_position, x="event", y="total", color="position")
 
-st.write("## Record")
+st.write("## Points Difference")
 
 points_diff = (
     head_to_head.filter(pl.col("finished"))
@@ -107,7 +107,7 @@ points_diff = (
 
 st.bar_chart(data=points_diff, x="event", y="diff", stack=True, color="win")
 
-st.write("## Points by position")
+st.write("## Points by Player")
 
 if position_filter != "All":
     team = team.filter(pl.col("position") == position_filter)
@@ -118,7 +118,7 @@ st.line_chart(
     color="player",
 )
 
-st.write("## Home and Away")
+st.write("## Home and Away Breakdown")
 
 home_away = (
     match_stats.select("event", "h_or_a", "team_name", "name", "opp_name")
@@ -174,7 +174,7 @@ st.bar_chart(
     stack=False,
 )
 
-st.write("## Form Guide")
+st.write("## Player Form Guide")
 
 metrics = [
     "minutes",
@@ -271,7 +271,7 @@ st.line_chart(
 )
 
 
-st.write("## Quadrants")
+st.write("## Player Quadrants")
 
 col1, col2 = st.columns(2)
 y_metric = col1.selectbox(
