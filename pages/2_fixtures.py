@@ -25,43 +25,52 @@ selections = selections.select(
     pl.col("event").cast(pl.Int32), "entry_name", "owner", "player", "team"
 )
 
-players = players.select("web_name", pl.col("team").alias("team_id"))
-
-st.write(fixtures)
-
-st.write(selections)
-
-st.write(players)
-
-selected_players = selections.join(
-    players, how="inner", left_on="player", right_on="web_name"
-)
-
 team_to_id = (
-    selected_players.select("team")
+    selections.select("team")
     .unique()
     .with_columns(team_id=pl.col("team").rank("ordinal").cast(pl.Int64))
 )
 
-st.write(selected_players)
+players = players.select("web_name", pl.col("team").alias("team_id"))
 
-st.write(team_to_id)
-
-joined = selected_players.join(
-    fixtures, how="right", left_on=["event", "team_id"], right_on=["event", "team_h"]
+players_with_team = players.join(
+    team_to_id, how="inner", left_on="team_id", right_on="team_id"
 )
 
-# .join(team_to_id, how="left", left_on="team_a", right_on="team_id").select(
-#     "event",
-#     "owner",
-#     "player",
-#     "team",
-#     "difficulty",
+st.dataframe(players_with_team)
 
-# )
+selected_players = selections.join(
+    players_with_team,
+    how="inner",
+    left_on=["team", "player"],
+    right_on=["team", "web_name"],
+)
 
-st.write(joined)
+st.write(selected_players)
 
-# TODO:
-# upcoming fixture rating
-# filter by selections
+st.write(fixtures)
+
+# upcoming fixture rating - which team has the easiest/hardest next run of fixtures
+
+h_fixtures = fixtures.select(
+    "event",
+    pl.col("team_h").alias("team_id"),
+    pl.col("team_a").alias("opp"),
+    pl.col("team_h_difficulty").alias("fdr"),
+)
+a_fixtures = fixtures.select(
+    "event",
+    pl.col("team_a").alias("team_id"),
+    pl.col("team_h").alias("opp"),
+    pl.col("team_a_difficulty").alias("fdr"),
+)
+all_fixtures = (
+    pl.concat([h_fixtures, a_fixtures])
+    .join(team_to_id, how="inner", left_on="team_id", right_on="team_id")
+    .join(team_to_id, how="inner", left_on="opp", right_on="team_id")
+).select("event", "team", pl.col("team_right").alias("opp"), "fdr")
+
+st.write(all_fixtures)
+
+
+# who's teams have the easiest and hardest run of fixtures
