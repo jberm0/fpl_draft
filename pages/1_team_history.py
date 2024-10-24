@@ -281,24 +281,19 @@ x_metric = col2.selectbox(
     label="Metric X-Axis", options=metrics, placeholder="expected_goals_scored"
 )
 
+if position_filter != "All":
+    team_form = team_form.filter(pl.col("position") == position_filter)
+
 if y_metric == x_metric:
-    team_quadrants = (
-        team_form.filter(pl.col("position") == position_filter)
-        .group_by("player", "position")
-        .agg(
-            pl.sum(y_metric).alias(y_metric),
-            pl.sum("total_points").alias("total_points"),
-        )
+    team_quadrants = team_form.group_by("player", "position").agg(
+        pl.sum(y_metric).alias(y_metric),
+        pl.sum("total_points").alias("total_points"),
     )
 else:
-    team_quadrants = (
-        team_form.filter(pl.col("position") == position_filter)
-        .group_by("player")
-        .agg(
-            pl.sum(y_metric).alias(y_metric),
-            pl.sum(x_metric).alias(x_metric),
-            pl.sum("total_points").alias("total_points"),
-        )
+    team_quadrants = team_form.group_by("player").agg(
+        pl.sum(y_metric).alias(y_metric),
+        pl.sum(x_metric).alias(x_metric),
+        pl.sum("total_points").alias("total_points"),
     )
 
 player_tab.scatter_chart(
