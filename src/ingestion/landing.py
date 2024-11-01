@@ -29,7 +29,7 @@ def primary_api_calls_json(base_url, base_path, league_id):
             "write_path": base_path + "game_week.json",
         },
         "fixtures": {
-            "api_call": base_url + "fixtures",
+            "api_call": base_url.replace("draft", "fantasy") + "fixtures",
             "write_path": base_path + "fixtures.json",
         },
     }
