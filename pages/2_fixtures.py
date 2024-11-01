@@ -148,10 +148,9 @@ fpl_teams.bar_chart(
     fdr_projection, x="owner", y="total_fdr", color="total_fdr", stack="center"
 )
 
+fpl_teams.write(f"## Squad Projection for GW {last_gw+1} based on current squads")
 owner_filter = fpl_teams.selectbox(
     label="Select Owner", options=["JB", "KO", "VA", "LJ", "GN", "SH", "MM", "FM"]
 )
-
-fpl_teams.write(f"## Squad Projection for GW {last_gw+1} based on current squads")
 opp_projection = selection_projection.filter(pl.col("owner") == owner_filter)
 fpl_teams.write(opp_projection)
