@@ -14,11 +14,9 @@ standings = pl.read_parquet(f"{trusted_path}standings.parquet").select(
     )
 )
 last_gw = pl.Series(standings.select(pl.first("P"))).to_list()[0]
-team_to_id = (
-    selections.select(pl.col("team").alias("team_name"))
-    .unique()
-    .with_columns(team_id=pl.col("team_name").rank("ordinal").cast(pl.Int64))
-)
+team_to_id = player_points.select(
+    pl.col("team").alias("team_id"), pl.col("short_name").alias("team_name")
+).unique()
 
 player_id_position = players.select(
     "web_name",
