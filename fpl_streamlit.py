@@ -9,7 +9,7 @@ st.write("# FPL League 2024/25")
 st.markdown("## League Standings")
 standings = pl.read_parquet(f"{trusted_path}standings.parquet").select(
     "rank",
-    "team_name",
+    "owner",
     (pl.col("matches_won") + pl.col("matches_drawn") + pl.col("matches_lost")).alias(
         "P"
     ),
@@ -22,7 +22,6 @@ standings = pl.read_parquet(f"{trusted_path}standings.parquet").select(
 )
 st.write(standings)
 
-all_teams = pl.Series(standings.select("team_name").unique()).to_list()
 last_gw = pl.Series(standings.select(pl.first("P"))).to_list()[0]
 
 st.markdown("## Fixtures and Results")

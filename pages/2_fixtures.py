@@ -21,7 +21,6 @@ standings = pl.read_parquet(f"{trusted_path}standings.parquet").select(
 )
 last_gw = pl.Series(standings.select(pl.first("P"))).to_list()[0]
 
-
 fixtures = fixtures.select(
     pl.col("event").cast(pl.Int32),
     "team_h",
@@ -34,11 +33,9 @@ selections = selections.select(
     pl.col("event").cast(pl.Int32), "entry_name", "owner", "player", "team"
 )
 
-team_to_id = (
-    selections.select("team")
-    .unique()
-    .with_columns(team_id=pl.col("team").rank("ordinal").cast(pl.Int64))
-)
+team_to_id = player_points.select(
+    pl.col("team").alias("team_id"), pl.col("short_name").alias("team")
+).unique()
 
 players = players.select("web_name", pl.col("team").alias("team_id"))
 
