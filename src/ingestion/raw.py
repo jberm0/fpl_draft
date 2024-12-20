@@ -205,7 +205,10 @@ def process_live_elements(dict, gw_id):
     stats_dfs = []
     for player_id in player_level:
         # explain is the scoring for a given player
-        explain = player_level.get(player_id).get("explain")[0]
+        try:
+            explain = player_level.get(player_id).get("explain")[0]
+        except IndexError:
+            pass
         # stats is the full stat report for a given player
         stats = player_level.get(player_id).get("stats")
 
